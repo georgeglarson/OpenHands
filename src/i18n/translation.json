@@ -35953,5 +35953,39 @@
     "de": "owner/repo",
     "uk": "owner/repo",
     "ca": "owner/repo"
+  },
+  "CHAT_INTERFACE$CONTEXT_WINDOW_METER_LABEL": {
+    "en": "Context window usage",
+    "zh-CN": "上下文窗口用量",
+    "zh-TW": "上下文視窗用量",
+    "de": "Kontextfenster-Nutzung",
+    "ko-KR": "컨텍스트 윈도우 사용량",
+    "no": "Kontekstvindu-bruk",
+    "it": "Utilizzo finestra di contesto",
+    "pt": "Uso da janela de contexto",
+    "es": "Uso de la ventana de contexto",
+    "ar": "استخدام نافذة السياق",
+    "fr": "Utilisation de la fenêtre de contexte",
+    "tr": "Bağlam penceresi kullanımı",
+    "ja": "コンテキストウィンドウ使用量",
+    "uk": "Використання вікна контексту",
+    "ca": "Ús de la finestra de context"
+  },
+  "CHAT_INTERFACE$PLAN_USAGE": {
+    "en": "Plan usage",
+    "zh-CN": "计划用量",
+    "zh-TW": "方案用量",
+    "de": "Plannutzung",
+    "ko-KR": "플랜 사용량",
+    "no": "Planbruk",
+    "it": "Utilizzo del piano",
+    "pt": "Uso do plano",
+    "es": "Uso del plan",
+    "ar": "استخدام الخطة",
+    "fr": "Utilisation du forfait",
+    "tr": "Plan kullanımı",
+    "ja": "プラン使用量",
+    "uk": "Використання плану",
+    "ca": "Ús del pla"
   }
 }
