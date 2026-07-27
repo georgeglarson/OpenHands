@@ -7,12 +7,7 @@ export const CONTEXT_FILL_WARNING_PERCENT = 70;
 /** Context fill percentage above which the meter signals danger. */
 export const CONTEXT_FILL_DANGER_PERCENT = 90;
 
-interface ContextMeterProps {
-  /** Tokens currently held in the agent's context (`per_turn_token`). */
-  perTurnToken: number;
-  /** Model context window size in tokens. */
-  contextWindow: number;
-}
+export type ContextFillTone = "neutral" | "warning" | "danger";
 
 export function getContextFillPercent(
   perTurnToken: number,
@@ -21,11 +16,27 @@ export function getContextFillPercent(
   return contextWindow > 0 ? (perTurnToken / contextWindow) * 100 : 0;
 }
 
+export function getContextFillTone(usagePercentage: number): ContextFillTone {
+  if (usagePercentage > CONTEXT_FILL_DANGER_PERCENT) {
+    return "danger";
+  }
+  if (usagePercentage > CONTEXT_FILL_WARNING_PERCENT) {
+    return "warning";
+  }
+  return "neutral";
+}
+
+interface ContextMeterProps {
+  /** Tokens currently held in the agent's context (`per_turn_token`). */
+  perTurnToken: number;
+  /** Model context window size in tokens. */
+  contextWindow: number;
+}
+
 /**
  * Context-fill progress bar: neutral below
  * {@link CONTEXT_FILL_WARNING_PERCENT}, amber above it, red above
- * {@link CONTEXT_FILL_DANGER_PERCENT}. Mirrors the layout of the metrics
- * modal's ContextWindowSection with the raw token numbers underneath.
+ * {@link CONTEXT_FILL_DANGER_PERCENT}. Shows the raw token numbers underneath.
  */
 export function ContextMeter({
   perTurnToken,
@@ -39,18 +50,24 @@ export function ContextMeter({
 
   const usagePercentage = getContextFillPercent(perTurnToken, contextWindow);
   const progressWidth = Math.min(100, usagePercentage);
-  const isWarning = usagePercentage > CONTEXT_FILL_WARNING_PERCENT;
-  const isDanger = usagePercentage > CONTEXT_FILL_DANGER_PERCENT;
+  const tone = getContextFillTone(usagePercentage);
+  const isWarning = tone === "warning";
+  const isDanger = tone === "danger";
+  const roundedPercentage = Math.round(usagePercentage);
+  const remainingPercentage = Math.max(0, 100 - roundedPercentage);
+  const usagePercentLabel = isWindowUnknown
+    ? t(I18nKey.CONVERSATION$CONTEXT_WINDOW_UNKNOWN)
+    : `${roundedPercentage}% ${t(I18nKey.CONVERSATION$USED)} (${remainingPercentage}% ${t(I18nKey.CONVERSATION$LEFT)})`;
 
   return (
     <div data-testid="context-meter" className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <span className="font-semibold">
           {t(I18nKey.CONVERSATION$CONTEXT_WINDOW)}
         </span>
         <span
           className={cn(
-            "text-xs",
+            "shrink-0 text-xs",
             isDanger
               ? "text-red-500"
               : isWarning
@@ -58,16 +75,14 @@ export function ContextMeter({
                 : "text-[var(--oh-muted)]",
           )}
         >
-          {isWindowUnknown
-            ? t(I18nKey.CONVERSATION$CONTEXT_WINDOW_UNKNOWN)
-            : `${usagePercentage.toFixed(1)}% ${t(I18nKey.CONVERSATION$USED)}`}
+          {usagePercentLabel}
         </span>
       </div>
-      <div className="w-full h-1.5 bg-tertiary rounded-full overflow-hidden">
+      <div className="relative h-1.5 w-full rounded-full bg-tertiary">
         <div
           data-testid="context-meter-bar"
           className={cn(
-            "h-full transition-all duration-300",
+            "absolute inset-y-0 left-0 rounded-full transition-all duration-300",
             isDanger
               ? "bg-red-500"
               : isWarning

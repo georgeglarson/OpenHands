@@ -30,6 +30,7 @@ describe("ContextMeter", () => {
 
     const bar = screen.getByTestId("context-meter-bar");
     expect(bar).toHaveClass("bg-foreground");
+    expect(bar).toHaveClass("rounded-full");
     expect(bar.style.width).toBe("50%");
   });
 
@@ -43,6 +44,9 @@ describe("ContextMeter", () => {
     render(<ContextMeter perTurnToken={95} contextWindow={100} />);
 
     expect(screen.getByTestId("context-meter-bar")).toHaveClass("bg-red-500");
+    expect(screen.getByTestId("context-meter")).toHaveTextContent(
+      "95% CONVERSATION$USED (5% CONVERSATION$LEFT)",
+    );
   });
 
   it("caps the bar width at 100%", () => {

@@ -54,6 +54,7 @@ export function UsagePanel() {
                 usage.per_turn_token,
                 usage.context_window,
               )}
+              perTurnToken={usage.per_turn_token}
             />
           </div>
         </div>
@@ -61,16 +62,21 @@ export function UsagePanel() {
 
       <div className="rounded-md border border-[var(--oh-border)] bg-surface-raised p-3">
         <div className="grid gap-3">
-          <CostSection
-            cost={metrics.cost}
-            maxBudgetPerTask={metrics.max_budget_per_task}
-          />
+          <div className="flex justify-between items-center pb-2">
+            <span className="text-lg font-semibold">
+              {t(I18nKey.CONVERSATION$TOKEN_USAGE)}
+            </span>
+          </div>
           {isAcp && (
             <span className="text-xs text-[var(--oh-muted)]">
               {t(I18nKey.CONVERSATION$PLAN_USAGE_NOTE)}
             </span>
           )}
           {usage !== null && <UsageSection usage={usage} />}
+          <CostSection
+            cost={metrics.cost}
+            maxBudgetPerTask={metrics.max_budget_per_task}
+          />
         </div>
       </div>
 
