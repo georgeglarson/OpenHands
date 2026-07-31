@@ -1,0 +1,19 @@
+seed
+  s_e90ef942e5dd2f::t_eca12f73d090a4 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.19",
+  "base_commit_sha": "05a7ee271ff827426ca7dd3a9486308a92375b18",
+  "prompts": {},
+  "sessions": {
+    "s_e90ef942e5dd2f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "806ebbeb-9fd2-4709-ac70-6775a1aba8ef",
+        "model": "claude-opus-5"
+      },
+      "human_author": "t <t@t>"
+    }
+  }
+}
