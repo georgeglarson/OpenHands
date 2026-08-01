@@ -11,6 +11,7 @@ import {
 } from "#/hooks/use-await-context-compaction";
 import { AgentState } from "#/types/agent-state";
 import useMetricsStore from "#/stores/metrics-store";
+import { useEventStore } from "#/stores/use-event-store";
 import {
   displayErrorToast,
   displaySuccessToast,
@@ -29,6 +30,7 @@ export function useCompactContextAction(perTurnToken: number = 0) {
   const { curAgentState } = useAgentState();
   const { mutate: condense, isPending } = useCondenseConversation();
   const [beforeToken, setBeforeToken] = React.useState<number | null>(null);
+  const baselineEventIdsRef = React.useRef<Set<string | number> | null>(null);
 
   const isAgentBusy =
     curAgentState === AgentState.RUNNING ||
@@ -40,10 +42,16 @@ export function useCompactContextAction(perTurnToken: number = 0) {
   const handleCompactionComplete = React.useEffectEvent(
     (result: ContextCompactionResult) => {
       setBeforeToken(null);
+      baselineEventIdsRef.current = null;
       if (conversation?.id) {
         queryClient.invalidateQueries({
           queryKey: ["conversation-metrics", conversation.id],
         });
+      }
+
+      if (result.outcome === "timeout") {
+        displayErrorToast(t(I18nKey.CONVERSATION$COMPACT_CONTEXT_FAILED));
+        return;
       }
 
       if (result.savedToken > 0) {
@@ -65,6 +73,7 @@ export function useCompactContextAction(perTurnToken: number = 0) {
 
   useAwaitContextCompaction({
     beforeToken,
+    baselineEventIds: beforeToken !== null ? baselineEventIdsRef.current : null,
     onComplete: handleCompactionComplete,
   });
 
@@ -73,6 +82,10 @@ export function useCompactContextAction(perTurnToken: number = 0) {
 
     const snapshot =
       useMetricsStore.getState().usage?.per_turn_token ?? perTurnToken;
+    // The condense POST can return only after the server already emitted its
+    // Condensation event, so the await baseline must be captured *before* the
+    // request fires, not when the post-ack effect starts.
+    baselineEventIdsRef.current = new Set(useEventStore.getState().eventIds);
 
     condense(
       {
@@ -87,6 +100,7 @@ export function useCompactContextAction(perTurnToken: number = 0) {
         },
         onError: (error) => {
           setBeforeToken(null);
+          baselineEventIdsRef.current = null;
           displayErrorToast(
             retrieveAxiosErrorMessage(error) ||
               t(I18nKey.CONVERSATION$COMPACT_CONTEXT_FAILED),
