@@ -1,0 +1,14 @@
+src/components/features/settings/llm-profiles/add-models-modal.tsx
+  h_a56810faf6ff44 133-140,267-270
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "dabc84e8b05b8cc94bbf4ea4cc812f7c71d0a3c5",
+  "prompts": {},
+  "humans": {
+    "h_a56810faf6ff44": {
+      "author": "george larson <george.g.larson@gmail.com>"
+    }
+  }
+}
