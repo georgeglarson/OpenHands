@@ -1,0 +1,20 @@
+__tests__/components/settings/llm-profiles/add-models-modal.test.tsx
+  h_a56810faf6ff44 1-217
+src/i18n/translation.json
+  h_a56810faf6ff44 31282-31502
+src/components/features/settings/llm-profiles/add-models-modal.tsx
+  h_a56810faf6ff44 1-326
+src/components/features/settings/llm-profiles/llm-profiles-manager.tsx
+  h_a56810faf6ff44 6,44,106-124,151-155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "dd5dd0ab5a0e83dc461b56f5212b983a1f127ef6",
+  "prompts": {},
+  "humans": {
+    "h_a56810faf6ff44": {
+      "author": "george larson <george.g.larson@gmail.com>"
+    }
+  }
+}
