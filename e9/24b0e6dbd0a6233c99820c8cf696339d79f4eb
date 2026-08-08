@@ -1,0 +1,22 @@
+__tests__/hooks/mutation/use-switch-llm-profile.test.tsx
+  h_a56810faf6ff44 235-236
+src/api/conversation-metadata-store.ts
+  h_a56810faf6ff44 38-48
+src/contexts/conversation-websocket-context.tsx
+  h_a56810faf6ff44 616-618,622
+src/hooks/chat/record-model-switch-message.test.ts
+  h_a56810faf6ff44 22,26,236-312
+src/hooks/chat/record-model-switch-message.ts
+  h_a56810faf6ff44 29-33,38,49,83-92,100,109-112,121-131
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "e924b0e6dbd0a6233c99820c8cf696339d79f4eb",
+  "prompts": {},
+  "humans": {
+    "h_a56810faf6ff44": {
+      "author": "george larson <george.g.larson@gmail.com>"
+    }
+  }
+}
