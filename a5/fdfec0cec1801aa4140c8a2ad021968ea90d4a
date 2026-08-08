@@ -1,0 +1,30 @@
+__tests__/components/settings/agent-profiles/agent-profiles-local-view.test.tsx
+  h_a56810faf6ff44 23,26,32-39,226-241,269-307
+__tests__/components/settings/agent-profiles/merge-agent-profile-save-input.test.ts
+  h_a56810faf6ff44 82-97
+__tests__/routes/agent-settings.test.tsx
+  h_a56810faf6ff44 152,157-231,577
+__tests__/routes/build-agent-profile-fields.test.ts
+  h_a56810faf6ff44 12-13,18-31,101-102,114-137
+src/components/features/settings/agent-profiles/agent-profiles-local-view.tsx
+  h_a56810faf6ff44 53-59,63
+src/i18n/translation.json
+  h_a56810faf6ff44 2790-2823
+src/mocks/settings-handlers.ts
+  h_a56810faf6ff44 89-103
+src/routes/agent-settings.tsx
+  h_a56810faf6ff44 48,86-93,111,132-133,166-167,189-194,284-301,399-403,487-488,493-494,498,565-566,572-578,628-643,714-737
+src/services/settings.ts
+  h_a56810faf6ff44 51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "a5fdfec0cec1801aa4140c8a2ad021968ea90d4a",
+  "prompts": {},
+  "humans": {
+    "h_a56810faf6ff44": {
+      "author": "george larson <george.g.larson@gmail.com>"
+    }
+  }
+}
