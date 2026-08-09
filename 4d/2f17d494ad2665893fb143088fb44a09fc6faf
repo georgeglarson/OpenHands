@@ -1,0 +1,26 @@
+src/api/llm-balance-service.test.ts
+  s_eb45f26c50e231::t_8200ebc748ffc8 109-135
+src/api/llm-balance-service.ts
+  s_eb45f26c50e231::t_aaf54d2124cee5 63-67
+  s_eb45f26c50e231::t_a6a748b307f0d1 33-40
+  s_eb45f26c50e231::t_770e8c78e2a314 80-94
+  s_eb45f26c50e231::t_8afde7fdef3b70 2-5
+src/constants/llm-balance.ts
+  s_eb45f26c50e231::t_cb6c741e0f8357 7-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "4d2f17d494ad2665893fb143088fb44a09fc6faf",
+  "prompts": {},
+  "sessions": {
+    "s_eb45f26c50e231": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4d568363-edd0-4da0-9afd-d5d41bbe5e46",
+        "model": "claude-opus-5"
+      },
+      "human_author": "george larson <george.g.larson@gmail.com>"
+    }
+  }
+}
