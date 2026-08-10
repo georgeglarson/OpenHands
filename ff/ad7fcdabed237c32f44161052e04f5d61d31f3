@@ -1,0 +1,22 @@
+__tests__/contexts/conversation-websocket-context.test.tsx
+  h_a56810faf6ff44 7,108,473-505
+__tests__/hooks/use-live-conversation-metrics.test.ts
+  h_a56810faf6ff44 31,76,82,122-123,127-138
+src/contexts/conversation-websocket-context.tsx
+  h_a56810faf6ff44 291-295
+src/hooks/use-live-conversation-metrics.ts
+  h_a56810faf6ff44 9-17,43-52,80-82
+src/stores/metrics-store.ts
+  h_a56810faf6ff44 18,21,25-28,30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "ffad7fcdabed237c32f44161052e04f5d61d31f3",
+  "prompts": {},
+  "humans": {
+    "h_a56810faf6ff44": {
+      "author": "george larson <george.g.larson@gmail.com>"
+    }
+  }
+}
