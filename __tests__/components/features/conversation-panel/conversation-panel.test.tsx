@@ -27,6 +27,7 @@ import { ConversationPanel } from "#/components/features/conversation-panel/conv
 import { useConversationPanelPreferencesStore } from "#/stores/conversation-panel-preferences-store";
 import { useArchivedConversationsStore } from "#/stores/archived-conversations-store";
 import { usePinnedConversationsStore } from "#/stores/pinned-conversations-store";
+import { useMovedConversationsStore } from "#/stores/moved-conversations-store";
 import AgentServerConversationService from "#/api/conversation-service/agent-server-conversation-service.api";
 import { AppConversation } from "#/api/conversation-service/agent-server-conversation-service.types";
 import { ExecutionStatus } from "#/types/agent-server/core";
@@ -123,6 +124,7 @@ describe("ConversationPanel", () => {
     _mockConversationCounter = 0;
     usePinnedConversationsStore.setState({ pinsByBackendId: {} });
     useArchivedConversationsStore.setState({ archivesByBackendId: {} });
+    useMovedConversationsStore.setState({ movesByBackendId: {} });
     useConversationPanelPreferencesStore.setState({
       showArchivedConversations: false,
       automationFilterMode: "all",
@@ -2394,5 +2396,55 @@ describe("ConversationPanel", () => {
     expect(
       within(pinnedSection).getByTestId("conversation-panel-pinned-view-more"),
     ).toHaveTextContent("CONVERSATION_PANEL$MORE");
+  });
+
+  it("groups conversations under the override target folder in grouped mode", async () => {
+    useConversationPanelPreferencesStore.setState({ organizeMode: "grouped" });
+    vi.spyOn(
+      AgentServerConversationService,
+      "searchConversations",
+    ).mockResolvedValue({
+      items: [
+        createMockConversation({
+          id: "alpha-chat",
+          title: "Alpha Chat",
+          selected_workspace: "/workspace/alpha",
+        }),
+        createMockConversation({
+          id: "beta-chat",
+          title: "Beta Chat",
+          selected_workspace: "/workspace/alpha",
+        }),
+        createMockConversation({
+          id: "gamma-chat",
+          title: "Gamma Chat",
+          selected_workspace: "/workspace/gamma",
+        }),
+      ],
+      next_page_id: null,
+    });
+
+    // Relocate gamma-chat from its native /workspace/gamma group into the
+    // /workspace/alpha folder. After render, the gamma-chat card must land
+    // inside the alpha folder and the gamma folder must not be created.
+    useMovedConversationsStore
+      .getState()
+      .moveConversation(
+        SEEDED_DEFAULT_BACKEND_ID,
+        "gamma-chat",
+        "/workspace/alpha",
+      );
+
+    renderConversationPanel();
+
+    const alphaFolder = await screen.findByTestId(
+      "thread-folder-ws--workspace-alpha",
+    );
+    expect(within(alphaFolder).getByText("Alpha Chat")).toBeInTheDocument();
+    expect(within(alphaFolder).getByText("Beta Chat")).toBeInTheDocument();
+    expect(within(alphaFolder).getByText("Gamma Chat")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("thread-folder-ws--workspace-gamma"),
+    ).not.toBeInTheDocument();
   });
 });

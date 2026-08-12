@@ -49,6 +49,8 @@ import {
 } from "./conversation-panel-list-helpers";
 import { useArchivedConversationsStore } from "#/stores/archived-conversations-store";
 import { usePinnedConversationsStore } from "#/stores/pinned-conversations-store";
+import { useMovedConversationsStore } from "#/stores/moved-conversations-store";
+import { MoveConversationModal } from "./move-conversation-modal";
 
 interface ConversationPanelProps {
   onClose?: () => void;
@@ -63,6 +65,8 @@ interface ConversationPanelProps {
 const noop = () => {};
 
 const EMPTY_PINNED_CONVERSATION_IDS: readonly string[] = [];
+
+const EMPTY_MOVES: Readonly<Record<string, string>> = {};
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
@@ -106,6 +110,7 @@ export function ConversationPanel({
     React.useState(false);
   const [confirmArchiveModalVisible, setConfirmArchiveModalVisible] =
     React.useState(false);
+  const [moveModalVisible, setMoveModalVisible] = React.useState(false);
   const [confirmStopModalVisible, setConfirmStopModalVisible] =
     React.useState(false);
   const [
@@ -226,6 +231,14 @@ export function ConversationPanel({
   const removeArchivedConversation = useArchivedConversationsStore(
     (state) => state.removeArchivedConversation,
   );
+
+  const movesForBackend = useMovedConversationsStore(
+    (state) => state.movesByBackendId[activeBackend.id] ?? EMPTY_MOVES,
+  );
+  const moveConversation = useMovedConversationsStore(
+    (state) => state.moveConversation,
+  );
+  const clearMove = useMovedConversationsStore((state) => state.clearMove);
 
   const toggleGroupCollapsed = React.useCallback((groupId: string) => {
     setCollapsedGroupIds((prev) => {
@@ -455,12 +468,14 @@ export function ConversationPanel({
       activeBackend.kind,
       conversationSort,
       groupLabels,
+      movesForBackend,
     );
   }, [
     activeBackend.kind,
     conversationSort,
     groupLabels,
     groupedSourceConversations,
+    movesForBackend,
   ]);
 
   const groupDiscoveryConversationIds = React.useMemo(() => {
@@ -471,13 +486,17 @@ export function ConversationPanel({
       groupedSourceConversations,
       conversationPageById,
       activeBackend.kind,
-      { forceIncludeConversationId: currentConversationId },
+      {
+        forceIncludeConversationId: currentConversationId,
+        workspaceOverrides: movesForBackend,
+      },
     );
   }, [
     activeBackend.kind,
     conversationPageById,
     currentConversationId,
     groupedSourceConversations,
+    movesForBackend,
   ]);
 
   const orderedConversationGroups = React.useMemo(() => {
@@ -685,6 +704,27 @@ export function ConversationPanel({
     [],
   );
 
+  const handleMoveProject = React.useCallback((conversationId: string) => {
+    setMoveModalVisible(true);
+    setSelectedConversationId(conversationId);
+  }, []);
+
+  const handleConfirmMove = React.useCallback(
+    (workspacePath: string | null) => {
+      if (!selectedConversationId) return;
+      if (workspacePath === null) {
+        clearMove(activeBackend.id, selectedConversationId);
+      } else {
+        moveConversation(
+          activeBackend.id,
+          selectedConversationId,
+          workspacePath,
+        );
+      }
+    },
+    [activeBackend.id, clearMove, moveConversation, selectedConversationId],
+  );
+
   // Unarchiving needs no confirmation: it restores a row the user can archive
   // again in one click, and nothing about the conversation itself changes.
   const handleUnarchiveProject = React.useCallback(
@@ -881,6 +921,11 @@ export function ConversationPanel({
                         conversation.title ?? "",
                       )
               }
+              onMove={
+                activeBackend.kind === "local"
+                  ? () => handleMoveProject(conversation.id)
+                  : undefined
+              }
               onUnarchive={
                 isArchived
                   ? () => handleUnarchiveProject(conversation.id)
@@ -934,6 +979,7 @@ export function ConversationPanel({
       handleArchiveProject,
       handleConversationTitleChange,
       handleDeleteProject,
+      handleMoveProject,
       handleStopConversation,
       handleUnarchiveProject,
       onClose,
@@ -1178,6 +1224,23 @@ export function ConversationPanel({
             setSelectedConversationTitle(null);
           }}
           conversationTitle={selectedConversationTitle ?? undefined}
+        />
+      )}
+
+      {moveModalVisible && selectedConversationId && (
+        <MoveConversationModal
+          currentWorkspace={
+            movesForBackend[selectedConversationId] ??
+            allLoadedConversations.find((c) => c.id === selectedConversationId)
+              ?.selected_workspace ??
+            null
+          }
+          hasOverride={selectedConversationId in movesForBackend}
+          onConfirm={(workspacePath) => {
+            handleConfirmMove(workspacePath);
+            setMoveModalVisible(false);
+          }}
+          onCancel={() => setMoveModalVisible(false)}
         />
       )}
 
