@@ -27,6 +27,8 @@ interface ConversationCardProps {
   onClick?: () => void;
   onDelete?: () => void;
   onArchive?: () => void;
+  /** Only passed on the local backend — workspace grouping does not exist on cloud. */
+  onMove?: () => void;
   /**
    * Restores an archived conversation. The panel passes this instead of
    * `onArchive` for rows that are already archived, so the menu offers exactly
@@ -66,6 +68,7 @@ export function ConversationCard({
   onClick,
   onDelete,
   onArchive,
+  onMove,
   onUnarchive,
   onStop,
   onChangeTitle,
@@ -116,6 +119,13 @@ export function ConversationCard({
     event.preventDefault();
     event.stopPropagation();
     onArchive?.();
+    onContextMenuToggle?.(false);
+  };
+
+  const handleMove = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onMove?.();
     onContextMenuToggle?.(false);
   };
 
@@ -214,6 +224,7 @@ export function ConversationCard({
   const hasContextMenu = !!(
     onDelete ||
     onArchive ||
+    onMove ||
     onUnarchive ||
     onChangeTitle ||
     showOptions
@@ -295,6 +306,7 @@ export function ConversationCard({
                       onContextMenuToggle={onContextMenuToggle || (() => {})}
                       onDelete={onDelete && handleDelete}
                       onArchive={onArchive && handleArchive}
+                      onMove={onMove && handleMove}
                       onUnarchive={onUnarchive && handleUnarchive}
                       onStop={onStop && handleStop}
                       onEdit={onChangeTitle && handleEdit}
@@ -322,6 +334,7 @@ export function ConversationCard({
                   onContextMenuToggle={onContextMenuToggle || (() => {})}
                   onDelete={onDelete && handleDelete}
                   onArchive={onArchive && handleArchive}
+                  onMove={onMove && handleMove}
                   onUnarchive={onUnarchive && handleUnarchive}
                   onStop={onStop && handleStop}
                   onEdit={onChangeTitle && handleEdit}

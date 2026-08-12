@@ -7,7 +7,7 @@ import { ContextMenuListItem } from "../../context-menu/context-menu-list-item";
 import { I18nKey } from "#/i18n/declaration";
 import { ConversationNameContextMenuIconText } from "../../conversation/conversation-name-context-menu-icon-text";
 
-import { Archive, ArchiveRestore } from "lucide-react";
+import { Archive, ArchiveRestore, FolderInput, Gauge } from "lucide-react";
 import EditIcon from "#/icons/u-edit.svg?react";
 import SkillsIcon from "#/icons/skills.svg?react";
 import ToolsIcon from "#/icons/u-tools.svg?react";
@@ -15,12 +15,12 @@ import DownloadIcon from "#/icons/u-download.svg?react";
 import CloseIcon from "#/icons/u-close.svg?react";
 import DeleteIcon from "#/icons/u-delete.svg?react";
 import { Divider } from "#/ui/divider";
-import { Gauge } from "lucide-react";
 
 interface ConversationCardContextMenuProps {
   onClose: () => void;
   onDelete?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onArchive?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onMove?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onUnarchive?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onStop?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onEdit?: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -42,6 +42,7 @@ export function ConversationCardContextMenu({
   onClose,
   onDelete,
   onArchive,
+  onMove,
   onUnarchive,
   onStop,
   onEdit,
@@ -209,6 +210,18 @@ export function ConversationCardContextMenu({
               <ConversationNameContextMenuIconText
                 icon={<Gauge size={16} />}
                 text={t(I18nKey.BUTTON$DISPLAY_COST)}
+              />
+            </ContextMenuListItem>
+          ),
+          onMove && (
+            <ContextMenuListItem
+              key="move-button"
+              testId="move-button"
+              onClick={onMove}
+            >
+              <ConversationNameContextMenuIconText
+                icon={<FolderInput className="h-4 w-4" aria-hidden />}
+                text={t(I18nKey.COMMON$MOVE_CONVERSATION)}
               />
             </ContextMenuListItem>
           ),

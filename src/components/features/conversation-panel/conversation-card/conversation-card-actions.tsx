@@ -13,6 +13,7 @@ interface ConversationCardActionsProps {
   onContextMenuToggle: (isOpen: boolean) => void;
   onDelete?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onArchive?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onMove?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onUnarchive?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onStop?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onEdit?: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -28,6 +29,7 @@ export function ConversationCardActions({
   onContextMenuToggle,
   onDelete,
   onArchive,
+  onMove,
   onUnarchive,
   onStop,
   onEdit,
@@ -115,6 +117,7 @@ export function ConversationCardActions({
               onClose={() => onContextMenuToggle(false)}
               onDelete={onDelete}
               onArchive={onArchive}
+              onMove={onMove}
               onUnarchive={onUnarchive}
               onStop={isActive ? onStop : undefined}
               onEdit={onEdit}
