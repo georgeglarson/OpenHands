@@ -295,7 +295,10 @@ export function sortConversationsByField(
   );
 }
 
-function workspaceGroup(conversation: AppConversation): {
+function workspaceGroup(
+  conversation: AppConversation,
+  overridePath?: string,
+): {
   id: string;
   label: string;
 } {
@@ -308,7 +311,11 @@ function workspaceGroup(conversation: AppConversation): {
   // Normalize first, then check emptiness: inputs like "/", "///", or
   // "   ///" trim+strip to "" and must fall back to the "no workspace"
   // bucket rather than producing a stray `ws:` group with no label.
-  const normalized = conversation.selected_workspace
+  // An `overridePath` (a moved-conversation relocation) takes precedence
+  // over the conversation's stored `selected_workspace` and runs through
+  // the same normalization so trailing slashes / whitespace fall back the
+  // same way.
+  const normalized = (overridePath ?? conversation.selected_workspace)
     ?.trim()
     .replace(/\/+$/, "");
   if (!normalized) {
@@ -347,9 +354,10 @@ function repositoryGroup(conversation: AppConversation): {
 function getConversationGroupIdentity(
   conversation: AppConversation,
   backendKind: BackendKind,
+  workspaceOverrides?: Readonly<Record<string, string>>,
 ): { id: string; label: string } {
   return backendKind === "local"
-    ? workspaceGroup(conversation)
+    ? workspaceGroup(conversation, workspaceOverrides?.[conversation.id])
     : repositoryGroup(conversation);
 }
 
@@ -376,7 +384,10 @@ export function getGroupDiscoveryConversationIds(
   items: readonly AppConversation[],
   pageByConversationId: ReadonlyMap<string, number>,
   backendKind: BackendKind,
-  options?: { forceIncludeConversationId?: string | null },
+  options?: {
+    forceIncludeConversationId?: string | null;
+    workspaceOverrides?: Readonly<Record<string, string>>;
+  },
 ): Set<string> {
   // Resolve each conversation's folder identity exactly once; both passes
   // below (finding each folder's discovery page, then collecting the ids on
@@ -384,7 +395,11 @@ export function getGroupDiscoveryConversationIds(
   // workspace/repository normalization.
   const resolved = items.map((conversation) => ({
     conversationId: conversation.id,
-    groupId: getConversationGroupIdentity(conversation, backendKind).id,
+    groupId: getConversationGroupIdentity(
+      conversation,
+      backendKind,
+      options?.workspaceOverrides,
+    ).id,
     page: pageByConversationId.get(conversation.id) ?? 0,
   }));
 
@@ -419,6 +434,12 @@ export function groupConversations(
   backendKind: BackendKind,
   sortField: ConversationSortField,
   labels: { emptyWorkspace: string; emptyRepository: string },
+  /**
+   * Display-organization overrides (conversationId → workspace path) from the
+   * moved-conversations store; consulted before `selected_workspace` on the
+   * local backend, ignored for repository grouping.
+   */
+  workspaceOverrides?: Readonly<Record<string, string>>,
 ): {
   id: string;
   label: string;
@@ -434,6 +455,7 @@ export function groupConversations(
     const { id, label: rawLabel } = getConversationGroupIdentity(
       c,
       backendKind,
+      workspaceOverrides,
     );
     const label =
       id === "__none_workspace"

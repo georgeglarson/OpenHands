@@ -628,4 +628,142 @@ describe("conversation-panel-list-helpers", () => {
       ).map((c) => c.id),
     ).toEqual(["audit", "unnamed"]);
   });
+
+  describe("groupConversations with workspace overrides", () => {
+    it("groups a moved conversation under its override path", () => {
+      const a: AppConversation = {
+        ...base,
+        id: "a",
+        title: "a",
+        selected_workspace: "/home/u/original",
+      };
+      const b: AppConversation = {
+        ...base,
+        id: "b",
+        title: "b",
+        selected_workspace: "/home/u/original",
+      };
+      const groups = groupConversations(
+        [a, b],
+        "local",
+        "updated",
+        { emptyWorkspace: "No workspace", emptyRepository: "No repository" },
+        { a: "/home/u/trash" },
+      );
+      const ids = groups.map((g) => g.id);
+      expect(ids).toContain("ws:/home/u/trash");
+      const trash = groups.find((g) => g.id === "ws:/home/u/trash");
+      expect(trash?.conversations.map((c) => c.id)).toEqual(["a"]);
+    });
+
+    it("moves an ungrouped conversation into a workspace folder", () => {
+      const a: AppConversation = {
+        ...base,
+        id: "a",
+        title: "a",
+        selected_workspace: null,
+      };
+      const groups = groupConversations(
+        [a],
+        "local",
+        "updated",
+        { emptyWorkspace: "No workspace", emptyRepository: "No repository" },
+        { a: "/home/u/projects" },
+      );
+      expect(groups.map((g) => g.id)).toEqual(["ws:/home/u/projects"]);
+    });
+
+    it("applies the same normalization to override paths", () => {
+      // An override that normalizes to empty must land in the no-workspace
+      // bucket, exactly as a selected_workspace of "///" would.
+      const a: AppConversation = {
+        ...base,
+        id: "a",
+        title: "a",
+        selected_workspace: "/home/u/original",
+      };
+      const groups = groupConversations(
+        [a],
+        "local",
+        "updated",
+        { emptyWorkspace: "No workspace", emptyRepository: "No repository" },
+        { a: "   ///" },
+      );
+      expect(groups.map((g) => g.id)).toEqual(["__none_workspace"]);
+    });
+
+    it("does not mutate the conversation objects", () => {
+      const conversation: AppConversation = {
+        ...base,
+        id: "a",
+        title: "a",
+        selected_workspace: "/home/u/original",
+      };
+      groupConversations(
+        [conversation],
+        "local",
+        "updated",
+        { emptyWorkspace: "No workspace", emptyRepository: "No repository" },
+        { a: "/home/u/trash" },
+      );
+      expect(conversation.selected_workspace).toBe("/home/u/original");
+    });
+
+    it("ignores overrides on the cloud backend (repository grouping)", () => {
+      const a: AppConversation = {
+        ...base,
+        id: "a",
+        title: "a",
+        selected_repository: "org/repo",
+      };
+      const withOverride = groupConversations(
+        [a],
+        "cloud",
+        "updated",
+        { emptyWorkspace: "No workspace", emptyRepository: "No repository" },
+        { a: "/home/u/trash" },
+      );
+      const without = groupConversations(
+        [a],
+        "cloud",
+        "updated",
+        { emptyWorkspace: "No workspace", emptyRepository: "No repository" },
+      );
+      expect(withOverride.map((g) => g.id)).toEqual(without.map((g) => g.id));
+    });
+  });
+
+  it("lands a moved conversation's discovery id under its override folder", () => {
+    // The override must thread through getGroupDiscoveryConversationIds too,
+    // not just groupConversations: discovery page tracking follows the
+    // override's group identity, not the original selected_workspace.
+    const moved: AppConversation = {
+      ...base,
+      id: "moved",
+      title: "moved",
+      selected_workspace: "/home/u/original",
+    };
+    const stayed: AppConversation = {
+      ...base,
+      id: "stayed",
+      title: "stayed",
+      selected_workspace: "/home/u/original",
+    };
+    const items = [moved, stayed];
+    const pageByConversationId = new Map([
+      ["moved", 0],
+      ["stayed", 1],
+    ]);
+
+    const ids = getGroupDiscoveryConversationIds(
+      items,
+      pageByConversationId,
+      "local",
+      { workspaceOverrides: { moved: "/home/u/trash" } },
+    );
+    // The override folder gets its own discovery page; the unmoved
+    // conversation's discovery page is still the first page that surfaced
+    // its original folder.
+    expect([...ids]).toEqual(["moved", "stayed"]);
+  });
 });
