@@ -606,6 +606,57 @@ describe("ConversationPanel", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("clears a conversation's move override when the conversation is deleted", async () => {
+    const user = userEvent.setup();
+    const mockData: AppConversation[] = [
+      createMockConversation({ id: "1", title: "Conversation 1" }),
+      createMockConversation({ id: "2", title: "Conversation 2" }),
+    ];
+
+    const searchConversationsSpy = vi.spyOn(
+      AgentServerConversationService,
+      "searchConversations",
+    );
+    searchConversationsSpy.mockImplementation(async () => ({
+      items: mockData,
+      next_page_id: null,
+    }));
+
+    const deleteConversationSpy = vi.spyOn(
+      AgentServerConversationService,
+      "deleteConversation",
+    );
+    deleteConversationSpy.mockImplementation(async (id: string) => {
+      const index = mockData.findIndex((conv) => conv.id === id);
+      if (index !== -1) {
+        mockData.splice(index, 1);
+      }
+    });
+
+    // Seed a move override for the conversation we are about to delete, plus
+    // one for a surviving conversation to prove the clear is targeted.
+    useMovedConversationsStore
+      .getState()
+      .moveConversation("default-local", "1", "/workspace/alpha");
+    useMovedConversationsStore
+      .getState()
+      .moveConversation("default-local", "2", "/workspace/beta");
+
+    renderConversationPanel();
+
+    const cards = await screen.findAllByTestId("conversation-card");
+    const ellipsisButton = within(cards[0]).getByTestId("ellipsis-button");
+    await user.click(ellipsisButton);
+    await user.click(screen.getByTestId("delete-button"));
+    await user.click(screen.getByRole("button", { name: /confirm/i }));
+
+    await waitFor(() => {
+      expect(
+        useMovedConversationsStore.getState().movesByBackendId["default-local"],
+      ).toEqual({ "2": "/workspace/beta" });
+    });
+  });
+
   it("should archive a conversation and remove it from the list", async () => {
     const user = userEvent.setup();
     renderConversationPanel();

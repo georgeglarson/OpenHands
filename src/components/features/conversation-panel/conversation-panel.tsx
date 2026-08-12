@@ -761,6 +761,7 @@ export function ConversationPanel({
         {
           onSuccess: () => {
             removeArchivedConversation(activeBackend.id, conversationId);
+            clearMove(activeBackend.id, conversationId);
             if (conversationId === currentConversationId) {
               navigate("/conversations");
             }
@@ -807,6 +808,7 @@ export function ConversationPanel({
 
     for (const conversationId of deletedIds) {
       removeArchivedConversation(activeBackend.id, conversationId);
+      clearMove(activeBackend.id, conversationId);
     }
 
     if (
